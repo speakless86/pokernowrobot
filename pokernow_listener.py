@@ -32,22 +32,7 @@ def get_cookie():
     return f'npt={npt};'
 
 
-def send_message(game_id, message):
-    formated_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.000Z')
-    logging.info(formated_time)
-    response = requests.post(
-        'https://www.pokernow.club/new-chat-message/?gameID={game_id}',
-        headers={
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Origin': 'https://www.pokernow.club',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
-            'Cookie': get_cookie()},
-        data={'message': message})
-    logging.info(response.text)
-
-
-def start_server(game_id):
+def start_listener(game_id):
     socket_client = socketio.Client(request_timeout=60,
                                     logger=True,
                                     engineio_logger=True)
@@ -68,9 +53,6 @@ def start_server(game_id):
     def catch_all(event, data):
         logging.info('Event=' + event)
         logging.info(json.dumps(data, indent=4))
-        if event == 'newChatMessage':
-            logging.info('Sending message')
-            send_message(game_id, 'received')
 
     url = f'https://www.pokernow.club/socket.io/?gameID={game_id}&firstConnection=true&EIO=3&&pingTimeout=60'
     logging.info(f'Connecting to {url}')
@@ -100,7 +82,7 @@ def main():
     args = parse_args()
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    start_server(args.game_id[0])
+    start_listener(args.game_id[0])
 
 
 if __name__ == '__main__':
