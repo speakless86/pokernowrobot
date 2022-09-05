@@ -17,6 +17,7 @@ class PokerNowProcessor:
             #    if 'pGS' in data:
             #        logging.info(data['pGS'])
             if 'oTC' in data:
-                self._poker_game.set_state(data['oTC']['1'])
+                public_cards = data['oTC']['1']
+                self._poker_game.set_state(public_cards)
             # elif 'pGS' in data:
             #    logging.info(data['pGS'])
