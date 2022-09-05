@@ -10,21 +10,21 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 
 
-def send_message(driver):
+def send_message(driver, message):
     chat_button = WebDriverWait(
         driver,
-        10).until(
+        5).until(
         lambda x: x.find_element(
             By.XPATH,
             '//html/body/div[1]/div/div[1]/div[7]/div/button[2]'))
     chat_button.click()
     input_box = WebDriverWait(
         driver,
-        10).until(
+        5).until(
         lambda x: x.find_element(
             By.XPATH,
             '//*[@id="canvas"]/div[1]/div[7]/form/input'))
-    input_box.send_keys('Hello World')
+    input_box.send_keys(message)
     input_box.send_keys(Keys.ENTER)
 
 
@@ -33,7 +33,7 @@ def main():
     logger.setLevel(logging.INFO)
     driver = webdriver.Chrome()
     driver.get('https://www.pokernow.club/games/pgl8h8Tp4oQ7zRWjfWtwfHx74')
-    send_message(driver)
+    send_message(driver, 'Hello World!')
     time.sleep(5)
     driver.quit()
 
