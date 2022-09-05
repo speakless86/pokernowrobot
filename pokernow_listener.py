@@ -8,7 +8,7 @@ import sys
 
 import socketio
 
-import pokernow_event_processor
+from pokernow_processor import PokerNowProcessor
 
 
 def parse_args():
@@ -43,6 +43,7 @@ def start_listener(game_id, debug):
     socket_client = socketio.Client(request_timeout=60,
                                     logger=debug,
                                     engineio_logger=debug)
+    processer = PokerNowProcessor()
 
     @socket_client.event
     def connect():
@@ -58,7 +59,7 @@ def start_listener(game_id, debug):
 
     @socket_client.on('*')
     def catch_all(event, data):
-        pokernow_event_processor.process(event, data)
+        processer.process(event, data)
 
     url = f'https://www.pokernow.club/socket.io/?gameID={game_id}&firstConnection=true&EIO=3&&pingTimeout=60'
     logging.info(f'Connecting to {url}')
