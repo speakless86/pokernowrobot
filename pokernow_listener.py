@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Listen Pokernow Game with SocketIO."""
-import argparse
 import json
 import os
 import logging
@@ -9,29 +8,6 @@ import sys
 import socketio
 
 from pokernow_processor import PokerNowProcessor
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-gid',
-        '--game-id',
-        dest='game_id',
-        help='pokernow.club game id',
-        nargs=1,
-        required=True)
-    parser.add_argument(
-        '--debug',
-        dest='debug',
-        help='debug mode',
-        nargs='?',
-        default=False,
-        type=bool)
-    args = parser.parse_args()
-    if not args.game_id:
-        logging.error('You must specify a game id!')
-        sys.exit()
-    return args
 
 
 def get_cookie():
@@ -83,14 +59,3 @@ def start_listener(game_id, debug):
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
             'Cookie': get_cookie()})
     socket_client.wait()
-
-
-def main():
-    args = parse_args()
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    start_listener(args.game_id[0], args.debug)
-
-
-if __name__ == '__main__':
-    main()
