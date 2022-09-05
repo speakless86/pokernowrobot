@@ -10,7 +10,6 @@ class PokerNowProcessor:
     def __init__(self):
         self._poker_game = PokerGame()
 
-
     def process(self, event, data):
         if event == 'gC':
             # if 'tB' in data and len(data['tB']) == 1:
