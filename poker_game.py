@@ -15,24 +15,27 @@ class PokerGameState(Enum):
 
 class PokerGame:
     def __init__(self, driver):
-        logging.info('Started')
         self._driver = driver
         self._state = None
+        self._has_decided = True
 
     def set_state(self, public_cards):
+        new_state = None
         if len(public_cards) == 0:
-            self._state = PokerGameState.PREFLOP
-            preflop()
+            new_state = PokerGameState.PREFLOP
             logging.info('preflop')
         elif len(public_cards) == 3:
-            self._state = PokerGameState.FLOP
+            new_state = PokerGameState.FLOP
             logging.info('flop')
         elif len(public_cards) == 4:
-            self._state = PokerGameState.TURN
+            new_state = PokerGameState.TURN
             logging.info('turn')
         elif len(public_cards) == 5:
-            self._state = PokerGameState.RIVER
+            new_state = PokerGameState.RIVER
             logging.info('river')
+        if new_state != self._state:
+            self._has_decided = False
+        self._state = new_state
         logging.info(public_cards)
 
     def set_hero(self, hero_id, hero_name):
@@ -52,16 +55,13 @@ class PokerGame:
         self._current_bets = current_bets
 
     def decide(self):
-        if not self._state:
+        if not self._state or self._has_decided:
             return
         if self._state == PokerGameState.PREFLOP:
-            _preflop()
+            self._preflop()
+        self._has_decided = True
 
     def _preflop(self):
-        if not self._state:
-            logging.info('Can not fold because state is unknown!')
-            return
-
         is_on_button = False
         has_someone_open = False
         for player_id in self._current_bets:
@@ -70,8 +70,7 @@ class PokerGame:
                 is_on_button = True
                 continue
             else:
-                if self._current_bets[player_id] > self._big_bind:
+                if int(self._current_bets[player_id]) > self._big_bind:
                     has_someone_open = True
-
-        if not is_not_button or (is_on_button and has_someone_open):
+        if not is_on_button or (is_on_button and has_someone_open):
             fold(self._driver)
