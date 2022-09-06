@@ -17,13 +17,17 @@ class PokerGame:
     def __init__(self, driver):
         self._driver = driver
         self._state = None
-        self._has_decided = True
+        self._current_bets = None
+        self._has_betting_changed = False
+        self._has_state_changed = False
+        self._has_folded = False
 
     def set_state(self, public_cards):
         new_state = None
         if len(public_cards) == 0:
             new_state = PokerGameState.PREFLOP
             logging.info('preflop')
+            self._has_folded = False
         elif len(public_cards) == 3:
             new_state = PokerGameState.FLOP
             logging.info('flop')
@@ -34,7 +38,9 @@ class PokerGame:
             new_state = PokerGameState.RIVER
             logging.info('river')
         if new_state != self._state:
-            self._has_decided = False
+            self._has_state_changed = True
+            self._current_bets = None
+            self._has_betting_changed = True
         self._state = new_state
         logging.info(public_cards)
 
@@ -52,13 +58,23 @@ class PokerGame:
         self._self_cards = self_cards
 
     def set_current_bets(self, current_bets):
-        if len(current_bets) != len(self._current_bets):
-            self._has_decided = False
+        if not self._current_bets or len(
+                current_bets) != len(self._current_bets):
+            self._has_betting_changed = True
         self._current_bets = current_bets
 
     def decide(self):
-        if not self._state or self._has_decided:
+        if not self._has_folded:
+            logging.info('has folded. No more decision needed.')
             return
+
+        logging.info('checked hero id')
+        logging.info(f'has_state_changed={self._has_state_changed}')
+        logging.info(f'has_betting_changed={self._has_betting_changed}')
+        if not self._has_state_changed and not self._has_betting_changed:
+            return
+        logging.info('after checking')
+
         if self._state == PokerGameState.PREFLOP:
             self._preflop()
         self._has_decided = True
@@ -76,3 +92,4 @@ class PokerGame:
                     has_someone_open = True
         if not is_on_button or (is_on_button and has_someone_open):
             fold(self._driver)
+            self._has_folded = True

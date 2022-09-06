@@ -11,6 +11,7 @@ class PokerNowProcessor:
         self._poker_game = PokerGame(driver)
 
     def process(self, event, data):
+        has_registered = False
         if event == 'registered':
             self._poker_game.set_hero(
                 data['currentPlayer']['id'],
@@ -19,13 +20,14 @@ class PokerNowProcessor:
             self._poker_game.set_small_bind(
                 data['gameState']['smallBlind'])
             self._poker_game.set_current_bets(data['gameState']['tB'])
+            has_registered = True
         elif event == 'gC':
+            logging.info(data)
             if 'oTC' in data:
                 public_cards = data['oTC']['1']
                 self._poker_game.set_state(public_cards)
 
             if 'pC' in data:
-                logging.info(data)
                 show_card_dict = dict()
                 for player_id in data['pC']:
                     if player_id != self._poker_game.hero_id:
@@ -39,4 +41,10 @@ class PokerNowProcessor:
             if 'tB' in data:
                 self._poker_game.set_current_bets(data['tB'])
 
-        self._poker_game.decide()
+            if 'pGS' in data:
+                logging.warning(data['pGS'])
+                self._poker_game.set_player_status(data['pGS'])
+
+        # Only start to process if the `registered` message has been delivered.
+        if has_registered:
+            self._poker_game.decide()
