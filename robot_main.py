@@ -57,7 +57,7 @@ def main():
         if cookie['name'] == 'npt':
             npt_cookie=cookie['value']
 
-    send_message(driver, 'Hello World!')
+    # send_message(driver, 'Hello World!')
     start_listener(args.game_id[0], args.debug, apt_cookie, npt_cookie)
 
 

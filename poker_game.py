@@ -29,3 +29,7 @@ class PokerGame:
             self._state = PokerGameState.RIVER
             logging.info('river')
         logging.info(public_cards)
+
+    def set_self_cards(self, self_cards):
+        logging.info("Found self cards!")
+        logging.info(self_cards)

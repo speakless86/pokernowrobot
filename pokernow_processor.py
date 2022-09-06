@@ -12,13 +12,16 @@ class PokerNowProcessor:
 
     def process(self, event, data):
         if event == 'gC':
-            # if 'tB' in data and len(data['tB']) == 1:
-            #    logging.info(data['tB'])
-            #    if 'pGS' in data:
-            #        logging.info(data['pGS'])
             if 'oTC' in data:
                 public_cards = data['oTC']['1']
                 self._poker_game.set_state(public_cards)
-            # elif 'pGS' in data:
-            #    logging.info(data['pGS'])
-            logging.info(json.dumps(data, indent=2))
+
+            if 'pC' in data:
+                for player_id in data['pC']:
+                    player_cards = data['pC'][player_id]
+                    if player_cards == '<D>':
+                        continue
+                    self_cards = player_cards['cards']
+                    self._poker_game.set_self_cards(self_cards)
+                    break
+            # logging.info(json.dumps(data, indent=2))
