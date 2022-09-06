@@ -4,7 +4,6 @@ import logging
 import time
 
 
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
@@ -26,16 +25,6 @@ def send_message(driver, message):
             '//*[@id="canvas"]/div[1]/div[7]/form/input'))
     input_box.send_keys(message)
     input_box.send_keys(Keys.ENTER)
-
-
-def main():
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    driver = webdriver.Chrome()
-    driver.get('https://www.pokernow.club/games/pgl8h8Tp4oQ7zRWjfWtwfHx74')
-    send_message(driver, 'Hello World!')
-    time.sleep(5)
-    driver.quit()
 
 
 if __name__ == '__main__':

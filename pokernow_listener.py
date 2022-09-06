@@ -10,12 +10,11 @@ import socketio
 from pokernow_processor import PokerNowProcessor
 
 
-def get_cookie():
-    npt = os.getenv('POKERNOW_NPT')
-    return f'npt={npt};'
+def get_cookie(apt_cookie, npt_cookie):
+    return f'npt={npt_cookie};apt={apt_cookie};'
 
 
-def start_listener(game_id, debug):
+def start_listener(game_id, debug, apt_cookie, npt_cookie):
     socket_client = socketio.Client(request_timeout=60,
                                     logger=debug,
                                     engineio_logger=debug)
@@ -57,5 +56,5 @@ def start_listener(game_id, debug):
             'Sec-WebSocket-Version': '13',
             'Upgrade': 'websocket',
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
-            'Cookie': get_cookie()})
+            'Cookie': get_cookie(apt_cookie, npt_cookie)})
     socket_client.wait()

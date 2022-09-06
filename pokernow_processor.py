@@ -21,3 +21,4 @@ class PokerNowProcessor:
                 self._poker_game.set_state(public_cards)
             # elif 'pGS' in data:
             #    logging.info(data['pGS'])
+            logging.info(json.dumps(data, indent=2))

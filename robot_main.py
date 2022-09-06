@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """Robot main."""
 import argparse
+import os
+import time
 import logging
+import json
+
+from selenium import webdriver
 
 from pokernow_listener import start_listener
-
+from pokernow_controller import send_message
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -34,12 +39,26 @@ def main():
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    start_listener(args.game_id[0], args.debug)
-    # driver = webdriver.Chrome()
-    # driver.get('https://www.pokernow.club/games/pgl8h8Tp4oQ7zRWjfWtwfHx74')
-    # send_message(driver, 'Hello World!')
-    # time.sleep(5)
-    # driver.quit()
+    url = f'https://www.pokernow.club/games/{args.game_id[0]}'
+    driver = webdriver.Chrome()
+    driver.get(url)
+
+    # Wait for manual login
+    logging.info('Enter into sleep for 30 seconds.')
+    time.sleep(30)
+    logging.info('Exit from sleeping.')
+
+    cookie_list = driver.get_cookies()
+    apt_cookie = ''
+    npt_cookie = ''
+    for cookie in cookie_list:
+        if cookie['name'] == 'apt':
+            apt_cookie=cookie['value']
+        if cookie['name'] == 'npt':
+            npt_cookie=cookie['value']
+
+    send_message(driver, 'Hello World!')
+    start_listener(args.game_id[0], args.debug, apt_cookie, npt_cookie)
 
 
 if __name__ == '__main__':
