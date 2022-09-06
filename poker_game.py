@@ -52,6 +52,8 @@ class PokerGame:
         self._self_cards = self_cards
 
     def set_current_bets(self, current_bets):
+        if len(current_bets) != len(self._current_bets):
+            self._has_decided = False
         self._current_bets = current_bets
 
     def decide(self):
