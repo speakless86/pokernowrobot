@@ -7,8 +7,8 @@ from poker_game import PokerGame
 
 
 class PokerNowProcessor:
-    def __init__(self):
-        self._poker_game = PokerGame()
+    def __init__(self, driver):
+        self._poker_game = PokerGame(driver)
 
     def process(self, event, data):
         if event == 'gC':
@@ -22,6 +22,7 @@ class PokerNowProcessor:
                     if player_cards == '<D>':
                         continue
                     self_cards = player_cards['cards']
-                    self._poker_game.set_self_cards(self_cards)
+                    is_on_button = player_id in data['wBACPI']
+                    self._poker_game.set_self_cards(self_cards, is_on_button)
                     break
-            # logging.info(json.dumps(data, indent=2))
+                logging.info(json.dumps(data, indent=2))

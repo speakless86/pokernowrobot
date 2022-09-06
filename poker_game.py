@@ -3,6 +3,8 @@
 import logging
 from enum import Enum
 
+from pokernow_control_utils import fold
+
 
 class PokerGameState(Enum):
     PREFLOP = 0
@@ -12,8 +14,9 @@ class PokerGameState(Enum):
 
 
 class PokerGame:
-    def __init__(self):
+    def __init__(self, driver):
         logging.info('Started')
+        self._driver = driver
 
     def set_state(self, public_cards):
         if len(public_cards) == 0:
@@ -30,6 +33,16 @@ class PokerGame:
             logging.info('river')
         logging.info(public_cards)
 
-    def set_self_cards(self, self_cards):
+    def set_self_cards(self, self_cards, is_on_button):
         logging.info("Found self cards!")
         logging.info(self_cards)
+        if is_on_button:
+            logging.info('Can not fold on button!')
+            return
+
+        if not self._state:
+            logging.info('Can not fold because state is unknown!')
+            return
+
+        if self._state == PokerGameState.PREFLOP:
+            fold(self._driver)

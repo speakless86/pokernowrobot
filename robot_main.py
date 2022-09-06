@@ -6,10 +6,9 @@ import time
 import logging
 import json
 
-from selenium import webdriver
-
 from pokernow_listener import start_listener
-from pokernow_controller import send_message
+from pokernow_control_utils import send_message
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -39,26 +38,7 @@ def main():
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    url = f'https://www.pokernow.club/games/{args.game_id[0]}'
-    driver = webdriver.Chrome()
-    driver.get(url)
-
-    # Wait for manual login
-    logging.info('Enter into sleep for 30 seconds.')
-    time.sleep(30)
-    logging.info('Exit from sleeping.')
-
-    cookie_list = driver.get_cookies()
-    apt_cookie = ''
-    npt_cookie = ''
-    for cookie in cookie_list:
-        if cookie['name'] == 'apt':
-            apt_cookie=cookie['value']
-        if cookie['name'] == 'npt':
-            npt_cookie=cookie['value']
-
-    # send_message(driver, 'Hello World!')
-    start_listener(args.game_id[0], args.debug, apt_cookie, npt_cookie)
+    start_listener(args.game_id[0], args.debug)
 
 
 if __name__ == '__main__':
