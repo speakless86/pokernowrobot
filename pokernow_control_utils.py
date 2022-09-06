@@ -9,15 +9,13 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 
 
-def create_driver_and_wait(game_id, wait_seconds):
+def create_driver(game_id):
     url = f'https://www.pokernow.club/games/{game_id}'
     driver = webdriver.Chrome()
     driver.get(url)
 
-    # Wait for manual login
-    logging.info(f'Enter into sleep for {wait_seconds} seconds.')
-    time.sleep(wait_seconds)
-    logging.info('Exit from sleeping.')
+    logging.info('Please sign in your account.')
+    _ = input('Press any key to continue.')
     return driver
 
 

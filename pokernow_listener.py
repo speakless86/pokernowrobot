@@ -8,7 +8,7 @@ import sys
 import socketio
 
 from pokernow_processor import PokerNowProcessor
-from pokernow_control_utils import create_driver_and_wait, get_cookie_value_by_name
+from pokernow_control_utils import create_driver, get_cookie_value_by_name
 
 
 def get_cookie(apt_cookie, npt_cookie):
@@ -20,7 +20,7 @@ def start_listener(game_id, debug):
                                     logger=debug,
                                     engineio_logger=debug)
 
-    driver = create_driver_and_wait(game_id, 30)
+    driver = create_driver(game_id)
     processer = PokerNowProcessor(driver)
 
     @socket_client.event
@@ -38,6 +38,12 @@ def start_listener(game_id, debug):
     @socket_client.on('*')
     def catch_all(event, data):
         processer.process(event, data)
+        # try:
+        #    processer.process(event, data)
+        # except BaseException as e:
+        #    logging.error(f'Failed to process event={event}')
+        #    logging.error(json.dumps(data, indent=2))
+        #    logging.error(e)
 
     url = f'https://www.pokernow.club/socket.io/?gameID={game_id}&firstConnection=true&EIO=3&&pingTimeout=60'
     logging.info(f'Connecting to {url}')
