@@ -64,16 +64,11 @@ class PokerGame:
         self._current_bets = current_bets
 
     def decide(self):
-        if not self._has_folded:
-            logging.info('has folded. No more decision needed.')
+        if self._has_folded:
             return
 
-        logging.info('checked hero id')
-        logging.info(f'has_state_changed={self._has_state_changed}')
-        logging.info(f'has_betting_changed={self._has_betting_changed}')
         if not self._has_state_changed and not self._has_betting_changed:
             return
-        logging.info('after checking')
 
         if self._state == PokerGameState.PREFLOP:
             self._preflop()
