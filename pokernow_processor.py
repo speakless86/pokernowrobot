@@ -41,10 +41,6 @@ class PokerNowProcessor:
             if 'tB' in data:
                 self._poker_game.set_current_bets(data['tB'])
 
-            if 'pGS' in data:
-                logging.warning(data['pGS'])
-                self._poker_game.set_player_status(data['pGS'])
-
         # Only start to process if the `registered` message has been delivered.
         if has_registered:
             self._poker_game.decide()
