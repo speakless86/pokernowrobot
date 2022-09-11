@@ -12,11 +12,14 @@ class PokerNowProcessor:
         self._has_registered = False
 
     def _process_game_state(self, data):
+        # logging.info(data)
         if 'oTC' in data:
+            # logging.info(f'oTC={data["oTC"]}')
             public_cards = data['oTC']['1']
             self._poker_game.set_state(public_cards)
 
         if 'pC' in data:
+            # logging.info(f'pC={data["pC"]}')
             show_card_dict = dict()
             for player_id in data['pC']:
                 if player_id != self._poker_game.hero_id:
@@ -28,17 +31,27 @@ class PokerNowProcessor:
                 break
 
         if 'tB' in data:
+            # logging.info(f'tB={data["tB"]}')
             self._poker_game.set_current_bets(data['tB'])
 
+        # 'cPI': 'EjdOJYaihs', 'pITT': 'EjdOJYaihs'
+        if 'cPI' in data:
+            self._poker_game.set_current_action_player(data['cPI'])
+
+        if 'bigBlind' in data:
+            # logging.info(f'bigBlind={data["bigBlind"]}')
+            self._poker_game.set_big_blind(data['bigBlind'])
+
+        if 'bBPI' in data:
+            self._poker_game.set_big_blind_player(data['bBPI'])
+
     def process(self, event, data):
+        # logging.info('event=' + event)
         if event == 'registered':
-            logging.info(data)
             self._poker_game.set_hero(
                 data['currentPlayer']['id'],
                 data['currentPlayer']['networkUsername'])
-            self._poker_game.set_big_bind(data['gameState']['bigBlind'])
-            self._poker_game.set_small_bind(
-                data['gameState']['smallBlind'])
+
             self._process_game_state(data['gameState'])
             self._has_registered = True
         elif event == 'gC':

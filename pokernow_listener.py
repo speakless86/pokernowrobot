@@ -38,12 +38,6 @@ def start_listener(game_id, debug):
     @socket_client.on('*')
     def catch_all(event, data):
         processer.process(event, data)
-        # try:
-        #    processer.process(event, data)
-        # except BaseException as e:
-        #    logging.error(f'Failed to process event={event}')
-        #    logging.error(json.dumps(data, indent=2))
-        #    logging.error(e)
 
     url = f'https://www.pokernow.club/socket.io/?gameID={game_id}&firstConnection=true&EIO=3&&pingTimeout=60'
     logging.info(f'Connecting to {url}')
