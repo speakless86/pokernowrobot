@@ -65,8 +65,3 @@ class PokerRange:
             return 1
         else:
             return -1
-
-
-if __name__ == '__main__':
-    poker_range = PokerRange('66+')
-    print(poker_range.is_in_range('ahad'))
