@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Poker Range"""
 
-
 class PokerRange:
     """Support to analyze poker range.
        Supported representation:
-       A6o+, 78s+, 66+
+       A6o+, 87s+, 66+
     """
     _CARD_ORDER = [
         '2',
@@ -24,6 +23,10 @@ class PokerRange:
 
     def __init__(self, poker_range_string):
         self._range_items = poker_range_string.split()
+        for range_item in self._range_items:
+            # Guranatee the first card in range is always larger.
+            if self._compare_cards(range_item[0], range_item[1]) < 0:
+                range_item[0], range_item[1] = range_item[1], range_item[0]
 
     def is_in_range(self, cards):
         card0 = cards[0]
