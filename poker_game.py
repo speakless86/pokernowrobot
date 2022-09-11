@@ -97,17 +97,21 @@ class PokerGame:
             if self._current_bets[player_id] > self._big_blind:
                 has_someone_opened = True
 
+        is_in_play_range = self._preflop_play_range.is_in_range(self._self_cards)
         if not is_big_blind or (is_big_blind and has_someone_opened):
             logging.info(f'Hero is holding {self._self_cards}')
-            if not self._preflop_play_range.is_in_range(self._self_cards):
+            if not is_in_play_range:
                 logging.info('Hero is going to fold immediately.')
                 fold(self._driver)
                 self._has_acted = True
                 return
 
-        if self._preflop_play_range.is_in_range(
-                self._self_cards) and not has_someone_opened:
+        if is_in_play_range and not has_someone_opened:
             logging.info('Hero is going to open.')
             num_players = len(self._current_bets)
             bet(self._driver, self._big_blind * (num_players + 2))
             self._has_acted = True
+        else:
+            logging.info(f'has_someone_opened={has_someone_opened}')
+            logging.info(f'is_big_blind={is_big_blind}')
+            logging.info(f'is_in_play_range={is_in_play_range}')
