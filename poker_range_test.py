@@ -2,7 +2,6 @@
 """Poker Rangei Unit Tests"""
 
 import unittest
-import logging
 
 from poker_range import PokerRange
 
@@ -16,13 +15,11 @@ class TestPokerRange(unittest.TestCase):
 
     def _test_range(self, poker_range, in_range_list, out_of_range_list):
         for cards in in_range_list:
-            logging.warning(cards)
             self.assertEqual(poker_range.is_in_range(cards), True)
             cards.reverse()
             self.assertEqual(poker_range.is_in_range(cards), True)
 
         for cards in out_of_range_list:
-            logging.warning(cards)
             self.assertEqual(poker_range.is_in_range(cards), False)
             cards.reverse()
             self.assertEqual(poker_range.is_in_range(cards), False)
