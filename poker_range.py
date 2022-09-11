@@ -5,7 +5,7 @@
 class PokerRange:
     """Support to analyze poker range.
        Supported representation:
-       a6o+, 78s+, 66+
+       A6o+, 78s+, 66+
     """
     _CARD_ORDER = [
         '2',
