@@ -1,7 +1,7 @@
 # PokerNow Robot
-## Install
+## Installation
 ```
-$ pip3 install -r requirement.txt
+$ pip3 install -r requirements.txt
 $ python3 robot_main.py --game-id ${POKERNOW_GAME_ID}
 ```
 
