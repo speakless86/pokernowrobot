@@ -105,7 +105,7 @@ class PokerGame:
         if not is_big_blind or (is_big_blind and has_someone_open):
             logging.info(f'Hero is holding {self._self_cards}')
             if not self._preflop_play_range.is_in_range(self._self_cards):
-                # send_message(self._driver, f'I am folding in 3 seconds')
+                send_message(self._driver, f'I am folding in 3 seconds')
                 logging.info('Hero is going to fold in 3 seoncds.')
                 time.sleep(3)
                 fold(self._driver)
