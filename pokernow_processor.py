@@ -33,7 +33,6 @@ class PokerNowProcessor:
             # logging.info(f'tB={data["tB"]}')
             self._poker_game.set_current_bets(data['tB'])
 
-        # 'cPI': 'EjdOJYaihs', 'pITT': 'EjdOJYaihs'
         if 'cPI' in data:
             # logging.info(f'cPI={data["cPI"]}')
             self._poker_game.set_current_action_player(data['cPI'])
@@ -55,6 +54,6 @@ class PokerNowProcessor:
         elif event == 'gC':
             self._process_game_state(data)
 
-        # Only start to process if the `registered` message has been delivered.
+        # Start to decide once the game state is refreshed by the `registered` message.
         if self._has_registered:
             self._poker_game.decide()

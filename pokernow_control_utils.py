@@ -14,7 +14,7 @@ def create_driver(game_id):
     driver = webdriver.Chrome()
     driver.get(url)
 
-    logging.info('Please sign in your account.')
+    logging.info('Please sign in your PokerNow account in Chrome.')
     _ = input('Press any key to continue.')
     return driver
 
