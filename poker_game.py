@@ -25,7 +25,7 @@ class PokerGame:
         self._current_bets = dict()
         self._state = None
         self._lock = threading.Lock()
-        self._preflop_fold_range = PokerRange(
+        self._preflop_play_range = PokerRange(
             'A2s+ K2s+ Q2s+ J7s+ T6s+ 96s+ 85s+ 74s+ 63s+ 52s+ 42s+ 32s+ A2o+ K9o+ Q9o+ J9o+ T9o+ 22+ 27s')
 
     def set_state(self, public_cards):
@@ -104,7 +104,7 @@ class PokerGame:
 
         if not is_big_blind or (is_big_blind and has_someone_open):
             logging.info(f'Hero is holding {self._self_cards}')
-            if not self._preflop_fold_range.is_in_range(self._self_cards):
+            if not self._preflop_play_range.is_in_range(self._self_cards):
                 # send_message(self._driver, f'I am folding in 3 seconds')
                 logging.info('Hero is going to fold in 3 seoncds.')
                 time.sleep(3)
