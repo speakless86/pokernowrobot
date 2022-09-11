@@ -36,6 +36,7 @@ class PokerNowProcessor:
 
         # 'cPI': 'EjdOJYaihs', 'pITT': 'EjdOJYaihs'
         if 'cPI' in data:
+            # logging.info(f'cPI={data["cPI"]}')
             self._poker_game.set_current_action_player(data['cPI'])
 
         if 'bigBlind' in data:

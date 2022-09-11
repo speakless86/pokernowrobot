@@ -26,25 +26,21 @@ class PokerGame:
         self._state = None
         self._lock = threading.Lock()
         self._preflop_fold_range = PokerRange(
-            'A2s+ K2s+ Q2s+ J7s+ T6s+ 96s+ 85s+ 74s+ 63s+ 52s+ 42s+ 32s+ A2o+ K9o+ Q9o+ J9o+ T9o+ 22+')
+            'A2s+ K2s+ Q2s+ J7s+ T6s+ 96s+ 85s+ 74s+ 63s+ 52s+ 42s+ 32s+ A2o+ K9o+ Q9o+ J9o+ T9o+ 22+ 27s')
 
     def set_state(self, public_cards):
         new_state = None
         if len(public_cards) == 0:
             new_state = PokerGameState.PREFLOP
-            logging.info('preflop')
             self._has_folded = False
         elif len(public_cards) == 3:
             new_state = PokerGameState.FLOP
-            logging.info('flop')
         elif len(public_cards) == 4:
             new_state = PokerGameState.TURN
-            logging.info('turn')
         elif len(public_cards) == 5:
             new_state = PokerGameState.RIVER
-            logging.info('river')
         if new_state != self._state:
-            logging.info(f'state changed from {self._state} to {new_state}')
+            logging.info(f'State changes from {self._state} to {new_state}')
             self._has_state_changed = True
             self._current_bets = dict()
             self._has_betting_changed = True
@@ -83,18 +79,19 @@ class PokerGame:
         self._current_action_player_id = player_id
 
     def decide(self):
-        self._lock.acquire()
-        if self._has_folded:
-            return
+        try:
+            self._lock.acquire()
+            if self._current_action_player_id != self.hero_id:
+                return
 
-        if self._current_action_player_id != self.hero_id:
-            return
+            if self._has_folded:
+                return
 
-        logging.info('Time to decide')
-        if self._state == PokerGameState.PREFLOP:
-            self._preflop()
-        self._has_decided = True
-        self._lock.release()
+            if self._state == PokerGameState.PREFLOP:
+                self._preflop()
+            self._has_decided = True
+        finally:
+            self._lock.release()
 
     def _preflop(self):
         is_big_blind = self._big_blind_player == self.hero_id
@@ -110,8 +107,8 @@ class PokerGame:
         if not is_big_blind or (is_big_blind and has_someone_open):
             logging.info(f'hero is holding {self._self_cards}')
             if not self._preflop_fold_range.is_in_range(self._self_cards):
-                logging.info(self._has_folded)
-                send_message(self._driver, f'I am folding in 3 seconds')
+                # send_message(self._driver, f'I am folding in 3 seconds')
+                logging.info('Hero is going to fold in 3 seoncds.')
                 time.sleep(3)
                 fold(self._driver)
                 self._has_folded = True
