@@ -6,7 +6,8 @@ $ python3 robot_main.py --game-id ${POKERNOW_GAME_ID}
 ```
 
 ## Version 1.0: Auto-fold in preflop
-We can define the preflop play range in poker_game.py
+We can define the preflop play range in poker_game.py.
+
 For example:
 ```
 self._preflop_play_range = PokerRange(
