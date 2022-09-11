@@ -12,7 +12,6 @@ class PokerNowProcessor:
         self._has_registered = False
 
     def _process_game_state(self, data):
-        # logging.info(data)
         if 'oTC' in data:
             # logging.info(f'oTC={data["oTC"]}')
             public_cards = data['oTC']['1']
@@ -40,14 +39,12 @@ class PokerNowProcessor:
             self._poker_game.set_current_action_player(data['cPI'])
 
         if 'bigBlind' in data:
-            # logging.info(f'bigBlind={data["bigBlind"]}')
             self._poker_game.set_big_blind(data['bigBlind'])
 
         if 'bBPI' in data:
             self._poker_game.set_big_blind_player(data['bBPI'])
 
     def process(self, event, data):
-        # logging.info('event=' + event)
         if event == 'registered':
             self._poker_game.set_hero(
                 data['currentPlayer']['id'],

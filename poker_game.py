@@ -71,8 +71,6 @@ class PokerGame:
                 if current_bets[player_id] == '<D>' and player_id in self._current_bets:
                     del self._current_bets[player_id]
                 else:
-                    # logging.info(
-                    #    f'player_id={player_id} changes to {current_bets[player_id]}')
                     self._current_bets[player_id] = current_bets[player_id]
 
     def set_current_action_player(self, player_id):
@@ -105,7 +103,7 @@ class PokerGame:
                 has_someone_open = True
 
         if not is_big_blind or (is_big_blind and has_someone_open):
-            logging.info(f'hero is holding {self._self_cards}')
+            logging.info(f'Hero is holding {self._self_cards}')
             if not self._preflop_fold_range.is_in_range(self._self_cards):
                 # send_message(self._driver, f'I am folding in 3 seconds')
                 logging.info('Hero is going to fold in 3 seoncds.')

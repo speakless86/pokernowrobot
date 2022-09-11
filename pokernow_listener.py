@@ -33,7 +33,7 @@ def start_listener(game_id, debug):
 
     @socket_client.event
     def disconnect():
-        logging.info('disconnected from server')
+        logging.info('Disconnected from server')
 
     @socket_client.on('*')
     def catch_all(event, data):
