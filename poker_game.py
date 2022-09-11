@@ -19,7 +19,6 @@ class PokerGameState(Enum):
 class PokerGame:
     def __init__(self, driver):
         self._driver = driver
-        self._has_betting_changed = False
         self._has_acted = False
         self._current_bets = dict()
         self._state = None
@@ -42,7 +41,6 @@ class PokerGame:
             logging.info(f'State changes from {self._state} to {new_state}')
             self._has_acted = False
             self._current_bets = dict()
-            self._has_betting_changed = True
         self._state = new_state
         logging.info(public_cards)
 
@@ -66,7 +64,6 @@ class PokerGame:
         for player_id in current_bets:
             if player_id not in self._current_bets or self._current_bets[
                     player_id] != current_bets[player_id]:
-                self._has_betting_changed = True
                 if current_bets[player_id] == '<D>' and player_id in self._current_bets:
                     del self._current_bets[player_id]
                 else:
@@ -86,22 +83,21 @@ class PokerGame:
 
             if self._state == PokerGameState.PREFLOP:
                 self._preflop()
-            self._has_decided = True
         finally:
             self._lock.release()
 
     def _preflop(self):
         is_big_blind = self._big_blind_player == self.hero_id
 
-        has_someone_open = False
+        has_someone_opened = False
         for player_id in self._current_bets:
             if player_id == self.hero_id:
                 continue
 
             if self._current_bets[player_id] > self._big_blind:
-                has_someone_open = True
+                has_someone_opened = True
 
-        if not is_big_blind or (is_big_blind and has_someone_open):
+        if not is_big_blind or (is_big_blind and has_someone_opened):
             logging.info(f'Hero is holding {self._self_cards}')
             if not self._preflop_play_range.is_in_range(self._self_cards):
                 logging.info('Hero is going to fold immediately.')
@@ -110,7 +106,7 @@ class PokerGame:
                 return
 
         if self._preflop_play_range.is_in_range(
-                self._self_cards) and not has_someone_open:
+                self._self_cards) and not has_someone_opened:
             logging.info('Hero is going to open.')
             num_players = len(self._current_bets)
             bet(self._driver, self._big_blind * (num_players + 2))
