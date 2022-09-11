@@ -45,7 +45,6 @@ def send_message(driver, message):
 
 
 def fold(driver):
-    logging.info('Folding')
     fold_button = WebDriverWait(
         driver,
         5).until(

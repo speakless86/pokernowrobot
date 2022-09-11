@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Poker Game"""
 import logging
+import threading
 import time
 from enum import Enum
 
@@ -23,6 +24,7 @@ class PokerGame:
         self._has_folded = False
         self._current_bets = dict()
         self._state = None
+        self._lock = threading.Lock()
         self._preflop_fold_range = PokerRange(
             'A2s+ K2s+ Q2s+ J7s+ T6s+ 96s+ 85s+ 74s+ 63s+ 52s+ 42s+ 32s+ A2o+ K9o+ Q9o+ J9o+ T9o+ 22+')
 
@@ -73,14 +75,15 @@ class PokerGame:
                 if current_bets[player_id] == '<D>' and player_id in self._current_bets:
                     del self._current_bets[player_id]
                 else:
-                    logging.info(
-                        f'player_id={player_id} changes to {current_bets[player_id]}')
+                    # logging.info(
+                    #    f'player_id={player_id} changes to {current_bets[player_id]}')
                     self._current_bets[player_id] = current_bets[player_id]
 
     def set_current_action_player(self, player_id):
         self._current_action_player_id = player_id
 
     def decide(self):
+        self._lock.acquire()
         if self._has_folded:
             return
 
@@ -91,6 +94,7 @@ class PokerGame:
         if self._state == PokerGameState.PREFLOP:
             self._preflop()
         self._has_decided = True
+        self._lock.release()
 
     def _preflop(self):
         is_big_blind = self._big_blind_player == self.hero_id
@@ -106,7 +110,8 @@ class PokerGame:
         if not is_big_blind or (is_big_blind and has_someone_open):
             logging.info(f'hero is holding {self._self_cards}')
             if not self._preflop_fold_range.is_in_range(self._self_cards):
+                logging.info(self._has_folded)
                 send_message(self._driver, f'I am folding in 3 seconds')
                 time.sleep(3)
                 fold(self._driver)
-            self._has_folded = True
+                self._has_folded = True
