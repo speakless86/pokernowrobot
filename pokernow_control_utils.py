@@ -54,5 +54,29 @@ def fold(driver):
     fold_button.click()
 
 
+def bet(driver, amount, dry_run=False):
+    logging.info(f'Hero is going to open {amount}. (dry_run={dry_run})')
+
+    if dry_run:
+        return
+
+    bet_button = WebDriverWait(
+        driver,
+        5).until(
+        lambda x: x.find_element(
+            By.XPATH,
+            '//*[@id="canvas"]/div[1]/div[6]/div/button[2]'))
+    bet_button.click()
+
+    input_box = WebDriverWait(
+        driver,
+        5).until(
+        lambda x: x.find_element(
+            By.XPATH,
+            '//*[@id="canvas"]/div[1]/div[6]/form/div[1]/div/input'))
+    input_box.send_keys(amount)
+    input_box.send_keys(Keys.ENTER)
+
+
 if __name__ == '__main__':
     main()

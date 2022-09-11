@@ -6,7 +6,7 @@ import time
 from enum import Enum
 
 from poker_range import PokerRange
-from pokernow_control_utils import send_message, fold
+from pokernow_control_utils import bet, send_message, fold
 
 
 class PokerGameState(Enum):
@@ -20,8 +20,7 @@ class PokerGame:
     def __init__(self, driver):
         self._driver = driver
         self._has_betting_changed = False
-        self._has_state_changed = False
-        self._has_folded = False
+        self._has_acted = False
         self._current_bets = dict()
         self._state = None
         self._lock = threading.Lock()
@@ -33,7 +32,6 @@ class PokerGame:
         new_state = None
         if len(public_cards) == 0:
             new_state = PokerGameState.PREFLOP
-            self._has_folded = False
         elif len(public_cards) == 3:
             new_state = PokerGameState.FLOP
         elif len(public_cards) == 4:
@@ -42,7 +40,7 @@ class PokerGame:
             new_state = PokerGameState.RIVER
         if new_state != self._state:
             logging.info(f'State changes from {self._state} to {new_state}')
-            self._has_state_changed = True
+            self._has_acted = False
             self._current_bets = dict()
             self._has_betting_changed = True
         self._state = new_state
@@ -83,7 +81,7 @@ class PokerGame:
             if self._current_action_player_id != self.hero_id:
                 return
 
-            if self._has_folded:
+            if self._has_acted:
                 return
 
             if self._state == PokerGameState.PREFLOP:
@@ -106,8 +104,14 @@ class PokerGame:
         if not is_big_blind or (is_big_blind and has_someone_open):
             logging.info(f'Hero is holding {self._self_cards}')
             if not self._preflop_play_range.is_in_range(self._self_cards):
-                # send_message(self._driver, f'I am folding in 3 seconds')
                 logging.info('Hero is going to fold immediately.')
-                # time.sleep(3)
                 fold(self._driver)
-                self._has_folded = True
+                self._has_acted = True
+                return
+
+        if self._preflop_play_range.is_in_range(
+                self._self_cards) and not has_someone_open:
+            logging.info('Hero is going to open.')
+            num_players = len(self._current_bets)
+            bet(self._driver, self._big_blind * (num_players + 2))
+            self._has_acted = True
