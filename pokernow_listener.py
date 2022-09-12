@@ -8,7 +8,7 @@ import sys
 import socketio
 
 from pokernow_processor import PokerNowProcessor
-from pokernow_control_utils import create_driver, get_cookie_value_by_name
+from utils.pokernow_control_utils import create_driver, get_cookie_value_by_name
 
 
 def get_cookie(apt_cookie, npt_cookie):

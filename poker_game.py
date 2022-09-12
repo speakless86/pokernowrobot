@@ -6,7 +6,7 @@ import time
 from enum import Enum
 
 from poker_range import PokerRange
-from pokernow_control_utils import bet, send_message, fold
+from utils.pokernow_control_utils import bet, send_message, fold
 
 
 class PokerGameState(Enum):

@@ -7,7 +7,6 @@ import logging
 import json
 
 from pokernow_listener import start_listener
-from pokernow_control_utils import send_message
 
 
 def parse_args():

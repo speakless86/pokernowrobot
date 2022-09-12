@@ -50,7 +50,7 @@ def fold(driver):
         5).until(
         lambda x: x.find_element(
             By.XPATH,
-            '//*[@id="canvas"]/div[1]/div[6]/div/button[4]'))
+            '//*[@id="canvas"]/div[1]/div[6]/div/button[contains(text(), "fold")]'))
     fold_button.click()
 
 
@@ -65,7 +65,7 @@ def bet(driver, amount, dry_run=False):
         5).until(
         lambda x: x.find_element(
             By.XPATH,
-            '//*[@id="canvas"]/div[1]/div[6]/div/button[2]'))
+            '//*[@id="canvas"]/div[1]/div[6]/div/button[contains(text(), "raise")]'))
     bet_button.click()
 
     input_box = WebDriverWait(
