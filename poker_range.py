@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Poker Range"""
-import logging
 
 
 class PokerRange:
@@ -28,7 +27,6 @@ class PokerRange:
         for range_item in self._range_items:
             # Guranatee the first card in range is always larger.
             if self._compare_cards(range_item[0], range_item[1]) < 0:
-                logging.info(range_item)
                 l = list(range_item)
                 l[0], l[1] = l[1], l[0]
                 range_item = ''.join(l)

@@ -72,6 +72,11 @@ class PokerGame:
     def set_current_action_player(self, player_id):
         self._current_action_player_id = player_id
 
+    def set_game_result(self, game_result):
+        # It is possible to change state from PREFLOP to PREFLOP.
+        logging.info('A new round is started.')
+        self._has_acted = False
+
     def decide(self):
         try:
             self._lock.acquire()

@@ -43,6 +43,9 @@ class PokerNowProcessor:
         if 'bBPI' in data:
             self._poker_game.set_big_blind_player(data['bBPI'])
 
+        if 'gameResult' in data:
+            self._poker_game.set_game_result(data['gameResult'])
+
     def process(self, event, data):
         if event == 'registered':
             self._poker_game.set_hero(
