@@ -16,8 +16,7 @@ def get_cookie(apt_cookie, npt_cookie):
 
 
 def start_listener(game_id, debug):
-    socket_client = socketio.Client(request_timeout=60,
-                                    logger=debug,
+    socket_client = socketio.Client(logger=debug,
                                     engineio_logger=debug)
 
     driver = create_driver(game_id)
@@ -26,6 +25,7 @@ def start_listener(game_id, debug):
     @socket_client.event
     def connect():
         logging.info('Connection has established.')
+        socket_client.wait()
 
     @socket_client.event
     def connect_error(data):
@@ -39,7 +39,7 @@ def start_listener(game_id, debug):
     def catch_all(event, data):
         processer.process(event, data)
 
-    url = f'https://www.pokernow.club/socket.io/?gameID={game_id}&firstConnection=true&EIO=3&&pingTimeout=60'
+    url = f'https://www.pokernow.club/socket.io/?gameID={game_id}'
     logging.info(f'Connecting to {url}')
 
     socket_client.connect(
