@@ -51,8 +51,6 @@ class PokerGame:
                 self._prompt = 'We are playing no limit poker. Small blind is {} and big blind is {}.\n'.format(self._small_blind, self._big_blind)
                 self._prompt += 'bb=big bind, s=spade, c=club, h=heart, d=diamond\n'
                 self._prompt += '9-max Seat #{} is the button\n'.format(self._dealer_seat)
-                print(self._player_seats)
-                print(self._player_stacks)
                 for idx, stack in enumerate(self._player_stacks):
                     self._prompt += 'Seat {} has {:.1f}bb\n'.format(self._get_seat_name(self._player_seats[idx]), stack / self._big_blind)
                 self._prompt += 'Seat {} posts the small blind {}\n'.format(self._get_seat_name(self._small_blind_player), self._small_blind)
@@ -165,7 +163,7 @@ class PokerGame:
 
             if self._has_acted:
                 return
-
+            print(self._prompt)
             openai_response = get_completion_response(self._prompt)
             print(openai_response)
             self._has_acted = True

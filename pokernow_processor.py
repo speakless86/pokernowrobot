@@ -66,13 +66,9 @@ class PokerNowProcessor:
             self._poker_game.set_hero(
                 data['currentPlayer']['id'],
                 data['currentPlayer']['networkUsername'])
-            print("Registered")
-            print(data['gameState'])
             self._process_game_state(data['gameState'], True)
             self._has_registered = True
         elif event == 'gC':
-            print("GC!")
-            print(data)
             self._process_game_state(data, False)
 
         # Start to decide once the game state is refreshed by the `registered` message.
