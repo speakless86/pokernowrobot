@@ -7,6 +7,7 @@ from enum import Enum
 
 from poker_range import PokerRange
 from utils.pokernow_control_utils import bet, send_message, fold
+from utils.openai_utils import get_completion_response
 
 
 class PokerGameState(Enum):
@@ -165,8 +166,8 @@ class PokerGame:
             if self._has_acted:
                 return
 
-            print('haha')
-            print(self._prompt)
+            openai_response = get_completion_response(self._prompt)
+            print(openai_response)
             self._has_acted = True
         finally:
             self._lock.release()
