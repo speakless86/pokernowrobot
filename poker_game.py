@@ -70,7 +70,7 @@ class PokerGame:
         for player_id, action in actions.items():
             seat_name = self._get_seat_name(player_id)
             if 'fold' in action:
-                self._prompt += '{} folds'.format(seat_name)
+                self._prompt += '{} folds\n'.format(seat_name)
 
     def set_players(self, players):
         self._player_seats = list()
@@ -165,7 +165,7 @@ class PokerGame:
                 return
             print(self._prompt)
             openai_response = get_completion_response(self._prompt)
-            print(openai_response)
+            print(openai_response.strip())
             self._has_acted = True
         finally:
             self._lock.release()
