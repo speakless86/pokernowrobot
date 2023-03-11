@@ -217,6 +217,8 @@ class PokerGame:
             return
 
         result = re.search('hero raises (\d+.\d+)bb', completion)
+        if not result:
+            result = re.search('hero raises to (\d+.\d+)bb', completion)
         if result:
             bet_size = max(float(result.group(1)), 2) * self._big_blind * 1.5
             logging.info('Hero is going to raise {}.'.format(bet_size))
