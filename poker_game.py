@@ -54,8 +54,10 @@ class PokerGame:
                 self._prompt += '8-max Seat #{} is the button\n'.format(self._dealer_seat)
                 for idx, stack in enumerate(self._player_stacks):
                     self._prompt += '{} has {:.1f}bb\n'.format(self._get_seat_name(self._player_seats[idx]), stack / self._big_blind)
-                self._prompt += '{} posts the small blind {}\n'.format(self._get_seat_name(self._small_blind_player), self._small_blind)
-                self._prompt += '{} posts the big blind {}\n'.format(self._get_seat_name(self._big_blind_player), self._big_blind)
+                self._update_player_stack(self._small_blind_player, self._small_blind)
+                self._prompt += '{} posts the small blind {}{}\n'.format(self._get_seat_name(self._small_blind_player), self._small_blind, self._is_allin(self._small_blind_player))
+                self._update_player_stack(self._big_blind_player, self._big_blind)
+                self._prompt += '{} posts the big blind {}{}\n'.format(self._get_seat_name(self._big_blind_player), self._big_blind, self._is_allin(self._small_blind_player))
                 self._prompt += 'Dealt to hero [{}]\n'.format(' '.join(self._hero_cards))
             elif new_state == PokerGameState.FLOP:
                 self._prompt += '*** FLOP *** [{}]\n'.format(' '.join(public_cards[0:3]))
@@ -144,12 +146,16 @@ class PokerGame:
                         action = 'raises'
                 if action:
                     if action == 'calls':
-                        self._prompt += '{} calls\n'.format(seat_name)
+                        self._update_player_stack(player_id, current_bet)
+                        self._prompt += '{} calls{}\n'.format(seat_name, self._is_allin(player_id))
                     elif action == 'raises':
-                        self._prompt += '{} raises to {}bb\n'.format(seat_name, current_bet / self._big_blind)
+                        self._update_player_stack(player_id, current_bet) 
+                        self._prompt += '{} raises to {}bb{}\n'.format(seat_name, current_bet / self._big_blind, self._is_allin(player_id))
 
                         if player_id != self.hero_id:
                             self._has_acted = False
+                    else:
+                        print('Unknown action:{}\n'.format(action))
 
                 self._current_bets[player_id] = current_bet
 
@@ -190,6 +196,17 @@ class PokerGame:
             return 'hero'
         else:
             return 'Seat {}'.format(self._player_seats.index(player_id) + 1)
+
+    def _update_player_stack(self, player_id, bet_size):
+        player_index = self._player_stacks.index(player_id)
+        self._player_stacks[player_id] -= bet_size
+
+    def _is_allin(self, player_id):
+        player_index = self._player_stacks.index(player_id)
+        if self._player_stacks[player_index] <= 0:
+            return ' and allins'
+        else:
+            return ''
 
     def _preflop(self):
         is_big_blind = self._big_blind_player == self.hero_id
