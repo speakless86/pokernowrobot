@@ -3,10 +3,11 @@
 import logging
 import threading
 import time
+import re
 from enum import Enum
 
 from poker_range import PokerRange
-from utils.pokernow_control_utils import bet, send_message, fold
+from utils.pokernow_control_utils import bet, send_message, fold, check, call
 from utils.openai_utils import get_completion_response
 
 
@@ -49,7 +50,7 @@ class PokerGame:
             self._has_acted = False
             self._current_bets = dict()
             if new_state == PokerGameState.PREFLOP:
-                self._prompt = 'We are playing no limit poker. Small blind is {} and big blind is {}.\n'.format(self._small_blind, self._big_blind)
+                self._prompt = 'Playing no limit poker. Small blind is {} and big blind is {}.\n'.format(self._small_blind, self._big_blind)
                 self._prompt += 'bb=big bind, s=spade, c=club, h=heart, d=diamond\n'
                 self._prompt += '8-max Seat #{} is the button\n'.format(self._dealer_seat)
                 for idx, stack in enumerate(self._player_stacks):
@@ -57,7 +58,7 @@ class PokerGame:
                 self._update_player_stack(self._small_blind_player, self._small_blind)
                 self._prompt += '{} posts the small blind {}{}\n'.format(self._get_seat_name(self._small_blind_player), self._small_blind, self._is_allin(self._small_blind_player))
                 self._update_player_stack(self._big_blind_player, self._big_blind)
-                self._prompt += '{} posts the big blind {}{}\n'.format(self._get_seat_name(self._big_blind_player), self._big_blind, self._is_allin(self._small_blind_player))
+                self._prompt += '{} posts the big blind {}{}\n'.format(self._get_seat_name(self._big_blind_player), self._big_blind, self._is_allin(self._big_blind_player))
                 self._prompt += 'Dealt to hero [{}]\n'.format(' '.join(self._hero_cards))
             elif new_state == PokerGameState.FLOP:
                 self._prompt += '*** FLOP *** [{}]\n'.format(' '.join(public_cards[0:3]))
@@ -81,6 +82,7 @@ class PokerGame:
         for player_id, stats in players.items():
             self._player_seats.append(player_id)
             self._player_stacks.append(float(stats['stack']))
+        print(self._player_stacks)
 
     def set_hero(self, hero_id, hero_name):
         self.hero_id = hero_id
@@ -101,6 +103,7 @@ class PokerGame:
           self._small_blind_player = self._player_seats[-1]
         else:
           self._small_blind_player = self._player_seats[bb_index - 1]
+        print('small blind player:' + self._small_blind_player)
 
     def set_dealer_id(self, player_id):
         self._dealer_id = player_id
@@ -174,12 +177,10 @@ class PokerGame:
             if self._has_acted:
                 return
 
-            if self._prompt.startswith('We are playing no limit poker'):
+            if self._prompt.startswith('Playing no limit poker'):
                 print(self._prompt)
                 openai_response = get_completion_response(self._prompt)
-                print('*****completion*****')
-                print(openai_response.strip())
-                print('********************')
+                self._execute_action(openai_response.strip().split('\n')[0])
             self._has_acted = True
         finally:
             self._lock.release()
@@ -198,15 +199,39 @@ class PokerGame:
             return 'Seat {}'.format(self._player_seats.index(player_id) + 1)
 
     def _update_player_stack(self, player_id, bet_size):
-        player_index = self._player_stacks.index(player_id)
-        self._player_stacks[player_id] -= bet_size
+        player_index = self._player_seats.index(player_id)
+        self._player_stacks[player_index] -= bet_size
 
     def _is_allin(self, player_id):
-        player_index = self._player_stacks.index(player_id)
+        player_index = self._player_seats.index(player_id)
         if self._player_stacks[player_index] <= 0:
             return ' and allins'
         else:
             return ''
+
+    def _execute_action(self, completion):
+        print(completion)
+        if 'hero folds' in completion:
+            logging.info('Hero is going to fold.')
+            fold(self._driver)
+            return
+
+        result = re.search('hero raises (\d+.\d+)bb', completion)
+        if result:
+            bet_size = max(float(result.group(1)), 2) * self._big_blind * 1.5
+            logging.info('Hero is going to raise {}.'.format(bet_size))
+            bet(self._driver, bet_size)
+            return
+
+        if 'hero checks' in completion:
+            logging.info('Hero is going to check.')
+            check(self._driver)
+            return
+
+        if 'hero calls' in completion:
+            logging.info('Hero is going to call.')
+            call(self._driver)
+            return
 
     def _preflop(self):
         is_big_blind = self._big_blind_player == self.hero_id

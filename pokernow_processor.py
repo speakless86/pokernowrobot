@@ -17,9 +17,10 @@ class PokerNowProcessor:
 
         if 'pC' in data:
             # logging.info(f'pC={data["pC"]}')
-            player_cards = data['pC'][self._poker_game.hero_id]
-            if isinstance(player_cards, dict):
-                self._poker_game.set_hero_cards(player_cards['cards'])
+            if self._poker_game.hero_id in data['pC']:
+                player_cards = data['pC'][self._poker_game.hero_id]
+                if isinstance(player_cards, dict):
+                    self._poker_game.set_hero_cards(player_cards['cards'])
 
         if 'cPI' in data:
             # logging.info(f'cPI={data["cPI"]}')

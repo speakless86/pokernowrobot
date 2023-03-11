@@ -50,9 +50,27 @@ def fold(driver):
         5).until(
         lambda x: x.find_element(
             By.XPATH,
-            '//*[@id="canvas"]/div[1]/div[6]/div/button[contains(@class, "fold")]'))
+            '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "fold")]'))
     fold_button.click()
 
+
+def check(driver):
+    fold_button = WebDriverWait(
+        driver,
+        5).until(
+        lambda x: x.find_element(
+            By.XPATH,
+            '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "check")]'))
+    fold_button.click()
+
+def call(driver):
+    fold_button = WebDriverWait(
+        driver,
+        5).until(
+        lambda x: x.find_element(
+            By.XPATH,
+            '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "call")]'))
+    fold_button.click()
 
 def bet(driver, amount, dry_run=False):
     logging.info(f'Hero is going to open {amount}. (dry_run={dry_run})')
@@ -65,7 +83,7 @@ def bet(driver, amount, dry_run=False):
         5).until(
         lambda x: x.find_element(
             By.XPATH,
-            '//*[@id="canvas"]/div[1]/div[6]/div/button[contains(@class, "raise")]'))
+            '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "raise")]'))
     bet_button.click()
 
     input_box = WebDriverWait(
@@ -73,8 +91,8 @@ def bet(driver, amount, dry_run=False):
         5).until(
         lambda x: x.find_element(
             By.XPATH,
-            '//*[@id="canvas"]/div[1]/div[6]/form/div[1]/div/input'))
-    input_box.send_keys(amount)
+            '//*[@id="canvas"]/div[1]/div/div[7]/form/div[1]/div/input'))
+    input_box.send_keys(int(amount))
     input_box.send_keys(Keys.ENTER)
 
 
