@@ -15,3 +15,6 @@ self._preflop_play_range = PokerRange(
 ```
 
 ## Version 1.1: Auto-open in preflop
+
+
+## Version 2.0: Use fine-tuning models trained in OpenAI to make decisions
