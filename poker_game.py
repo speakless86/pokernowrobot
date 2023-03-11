@@ -7,7 +7,7 @@ import re
 from enum import Enum
 
 from poker_range import PokerRange
-from utils.pokernow_control_utils import bet, send_message, fold, check, call
+from utils.pokernow_control_utils import bet, send_message, fold, check_or_call, call
 from utils.openai_utils import get_completion_response
 
 
@@ -219,15 +219,26 @@ class PokerGame:
         result = re.search('hero raises (\d+.\d+)bb', completion)
         if not result:
             result = re.search('hero raises to (\d+.\d+)bb', completion)
+
         if result:
             bet_size = max(float(result.group(1)), 2) * self._big_blind * 1.5
-            logging.info('Hero is going to raise {}.'.format(bet_size))
-            bet(self._driver, bet_size)
+            player_index = self._player_seats.index(self.hero_id)
+            bet_size = min(bet_size, self._player_stacks[player_index])
+
+            current_max = 0
+            for bet in self._current_bets.values():
+                current_max = max(current_max, bet)
+            if bet_size >= 2 * current_max:
+                logging.info('Hero is going to raise {}.'.format(bet_size))
+                bet(self._driver, bet_size)
+            else:
+                logging.info('Hero is goign to call.')
+                call(self._driver)
             return
 
         if 'hero checks' in completion:
             logging.info('Hero is going to check.')
-            check(self._driver)
+            check_or_call(self._driver)
             return
 
         if 'hero calls' in completion:

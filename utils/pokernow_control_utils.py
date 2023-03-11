@@ -4,6 +4,7 @@ import logging
 import time
 
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
@@ -29,14 +30,14 @@ def get_cookie_value_by_name(driver, cookie_name):
 def send_message(driver, message):
     chat_button = WebDriverWait(
         driver,
-        5).until(
+        2).until(
         lambda x: x.find_element(
             By.XPATH,
             '//html/body/div[1]/div/div[1]/div[7]/div/button[2]'))
     chat_button.click()
     input_box = WebDriverWait(
         driver,
-        5).until(
+        2).until(
         lambda x: x.find_element(
             By.XPATH,
             '//*[@id="canvas"]/div[1]/div[7]/form/input'))
@@ -47,30 +48,33 @@ def send_message(driver, message):
 def fold(driver):
     fold_button = WebDriverWait(
         driver,
-        5).until(
+        2).until(
         lambda x: x.find_element(
             By.XPATH,
             '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "fold")]'))
     fold_button.click()
 
 
-def check(driver):
-    fold_button = WebDriverWait(
-        driver,
-        5).until(
-        lambda x: x.find_element(
-            By.XPATH,
-            '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "check")]'))
-    fold_button.click()
+def check_or_call(driver):
+    try:
+        check_button = WebDriverWait(
+            driver,
+            2).until(
+            lambda x: x.find_element(
+                By.XPATH,
+                '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "check")]'))
+        check_button.click()
+    except NoSuchElementException:
+        call(driver)
 
 def call(driver):
-    fold_button = WebDriverWait(
+    call_button = WebDriverWait(
         driver,
-        5).until(
+        2).until(
         lambda x: x.find_element(
             By.XPATH,
             '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "call")]'))
-    fold_button.click()
+    call_button.click()
 
 def bet(driver, amount, dry_run=False):
     logging.info(f'Hero is going to open {amount}. (dry_run={dry_run})')
