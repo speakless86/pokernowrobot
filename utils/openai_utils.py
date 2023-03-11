@@ -7,6 +7,8 @@ def get_completion_response(prompt):
     completion = openai.Completion.create(
         model='curie:ft-personal-2023-03-08-03-46-55',
         prompt=prompt,
-        temperature=0.5
+        temperature=0.2
     )
+    for idx, choice in enumerate(completion.choices):
+        print('#{}: {}'.format(idx, choice))
     return completion.choices[0]['text']

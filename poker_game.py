@@ -15,6 +15,7 @@ class PokerGameState(Enum):
     FLOP = 1
     TURN = 2
     RIVER = 3
+    DONE = 4
 
 
 class PokerGame:
@@ -50,18 +51,18 @@ class PokerGame:
             if new_state == PokerGameState.PREFLOP:
                 self._prompt = 'We are playing no limit poker. Small blind is {} and big blind is {}.\n'.format(self._small_blind, self._big_blind)
                 self._prompt += 'bb=big bind, s=spade, c=club, h=heart, d=diamond\n'
-                self._prompt += '9-max Seat #{} is the button\n'.format(self._dealer_seat)
+                self._prompt += '8-max Seat #{} is the button\n'.format(self._dealer_seat)
                 for idx, stack in enumerate(self._player_stacks):
-                    self._prompt += 'Seat {} has {:.1f}bb\n'.format(self._get_seat_name(self._player_seats[idx]), stack / self._big_blind)
-                self._prompt += 'Seat {} posts the small blind {}\n'.format(self._get_seat_name(self._small_blind_player), self._small_blind)
-                self._prompt += 'Seat {} posts the big blind {}\n'.format(self._get_seat_name(self._big_blind_player), self._big_blind)
+                    self._prompt += '{} has {:.1f}bb\n'.format(self._get_seat_name(self._player_seats[idx]), stack / self._big_blind)
+                self._prompt += '{} posts the small blind {}\n'.format(self._get_seat_name(self._small_blind_player), self._small_blind)
+                self._prompt += '{} posts the big blind {}\n'.format(self._get_seat_name(self._big_blind_player), self._big_blind)
                 self._prompt += 'Dealt to hero [{}]\n'.format(' '.join(self._hero_cards))
             elif new_state == PokerGameState.FLOP:
-                self._prompt += '*** FLOP *** [{}]\n'.format(' '.join(public_cards[0:2]))
+                self._prompt += '*** FLOP *** [{}]\n'.format(' '.join(public_cards[0:3]))
             elif new_state == PokerGameState.TURN:
-                self._prompt += '*** TURN *** [{}] [{}]\n'.format(' '.join(public_cards[0:2]), public_cards[3])
+                self._prompt += '*** TURN *** [{}] [{}]\n'.format(' '.join(public_cards[0:3]), public_cards[3])
             elif new_state == PokerGameState.RIVER:
-                self._prompt += '*** RIVER *** [{}] [{}]\n'.format(' '.join(public_cards[0:3]), public_cards[4])
+                self._prompt += '*** RIVER *** [{}] [{}]\n'.format(' '.join(public_cards[0:4]), public_cards[4])
 
         self._state = new_state
         logging.info(public_cards)
@@ -82,9 +83,11 @@ class PokerGame:
     def set_hero(self, hero_id, hero_name):
         self.hero_id = hero_id
         self._hero_name = hero_name
+        logging.info('set hero id={}'.format(hero_id))
 
     def set_big_blind(self, big_blind):
         self._big_blind = big_blind
+        logging.info('set big blind')
 
     def set_small_blind(self, small_blind):
         self._small_blind = small_blind
@@ -103,13 +106,14 @@ class PokerGame:
     def set_dealer_seat(self, seat):
         self._dealer_seat = seat
 
-    def set_hero_cards(self, self_cards):
-        self._hero_cards = self_cards
+    def set_hero_cards(self, hero_cards):
+        self._hero_cards = hero_cards
+        logging.info('Found hero cards {}'.format(self._hero_cards))
 
     def set_current_bets(self, current_bets, is_first_message):
         for player_id in current_bets:
             current_bet = current_bets[player_id]
-            seat_name = self._get_seat_name(player_id)
+            seat_name = self._get_seat_name_or_hero(player_id)
             if current_bet == '<D>':
                 continue
 
@@ -143,7 +147,9 @@ class PokerGame:
                         self._prompt += '{} calls\n'.format(seat_name)
                     elif action == 'raises':
                         self._prompt += '{} raises to {}bb\n'.format(seat_name, current_bet / self._big_blind)
-                        self._has_acted = False
+
+                        if player_id != self.hero_id:
+                            self._has_acted = False
 
                 self._current_bets[player_id] = current_bet
 
@@ -151,9 +157,7 @@ class PokerGame:
         self._current_action_player_id = player_id
 
     def set_game_result(self, game_result):
-        # It is possible to change state from PREFLOP to PREFLOP.
-        logging.info('A new round is started.')
-        self._has_acted = False
+        self._state = PokerGameState.DONE
 
     def decide(self):
         try:
@@ -163,9 +167,13 @@ class PokerGame:
 
             if self._has_acted:
                 return
-            print(self._prompt)
-            openai_response = get_completion_response(self._prompt)
-            print(openai_response.strip())
+
+            if self._prompt.startswith('We are playing no limit poker'):
+                print(self._prompt)
+                openai_response = get_completion_response(self._prompt)
+                print('*****completion*****')
+                print(openai_response.strip())
+                print('********************')
             self._has_acted = True
         finally:
             self._lock.release()
@@ -176,6 +184,12 @@ class PokerGame:
         if player_id == self.hero_id:
             seat_name += '(hero)'
         return seat_name
+
+    def _get_seat_name_or_hero(self, player_id):
+        if player_id == self.hero_id:
+            return 'hero'
+        else:
+            return 'Seat {}'.format(self._player_seats.index(player_id) + 1)
 
     def _preflop(self):
         is_big_blind = self._big_blind_player == self.hero_id

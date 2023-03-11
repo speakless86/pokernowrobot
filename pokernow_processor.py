@@ -12,20 +12,14 @@ class PokerNowProcessor:
         self._has_registered = False
 
     def _process_game_state(self, data, is_first_message):
-        if 'pC' in data:
-            # logging.info(f'pC={data["pC"]}')
-            show_card_dict = dict()
-            for player_id in data['pC']:
-                if player_id != self._poker_game.hero_id:
-                    continue
-                player_cards = data['pC'][player_id]
-                if not isinstance(player_cards, dict):
-                    continue
-                self._poker_game.set_hero_cards(player_cards['cards'])
-                break
-
         if 'players' in data and is_first_message:
             self._poker_game.set_players(data['players'])
+
+        if 'pC' in data:
+            # logging.info(f'pC={data["pC"]}')
+            player_cards = data['pC'][self._poker_game.hero_id]
+            if isinstance(player_cards, dict):
+                self._poker_game.set_hero_cards(player_cards['cards'])
 
         if 'cPI' in data:
             # logging.info(f'cPI={data["cPI"]}')
@@ -40,7 +34,7 @@ class PokerNowProcessor:
         if 'smallBlind' in data:
             self._poker_game.set_small_blind(data['smallBlind'])
 
-        if 'gameResult' in data:
+        if 'gameResult' in data and not is_first_message:
             self._poker_game.set_game_result(data['gameResult'])
 
         if 'dealerId' in data:
@@ -66,9 +60,12 @@ class PokerNowProcessor:
             self._poker_game.set_hero(
                 data['currentPlayer']['id'],
                 data['currentPlayer']['networkUsername'])
+            print('registered')
+            print(data['gameState'])
             self._process_game_state(data['gameState'], True)
             self._has_registered = True
         elif event == 'gC':
+            print(data)
             self._process_game_state(data, False)
 
         # Start to decide once the game state is refreshed by the `registered` message.
