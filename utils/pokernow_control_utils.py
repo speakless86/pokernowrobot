@@ -65,16 +65,18 @@ def check_or_call(driver):
                 '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "check")]'))
         check_button.click()
     except NoSuchElementException:
-        call(driver)
+        print('cant find check button')
 
-def call(driver):
-    call_button = WebDriverWait(
-        driver,
-        2).until(
-        lambda x: x.find_element(
-            By.XPATH,
-            '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "call")]'))
-    call_button.click()
+    try:
+        call_button = WebDriverWait(
+            driver,
+            2).until(
+            lambda x: x.find_element(
+                By.XPATH,
+                '//*[@id="canvas"]/div[1]/div/div[7]/div/button[contains(@class, "call")]'))
+        call_button.click()
+    except NoSuchElementException:
+        print('cant find call button')
 
 def bet(driver, amount, dry_run=False):
     logging.info(f'Hero is going to open {amount}. (dry_run={dry_run})')

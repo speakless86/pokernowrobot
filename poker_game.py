@@ -7,7 +7,7 @@ import re
 from enum import Enum
 
 from poker_range import PokerRange
-from utils.pokernow_control_utils import bet, send_message, fold, check_or_call, call
+from utils.pokernow_control_utils import bet, send_message, fold, check_or_call
 from utils.openai_utils import get_completion_response
 
 
@@ -226,14 +226,14 @@ class PokerGame:
             bet_size = min(bet_size, self._player_stacks[player_index])
 
             current_max = 0
-            for bet in self._current_bets.values():
-                current_max = max(current_max, bet)
+            for single_bet in self._current_bets.values():
+                current_max = max(current_max, single_bet)
             if bet_size >= 2 * current_max:
                 logging.info('Hero is going to raise {}.'.format(bet_size))
                 bet(self._driver, bet_size)
             else:
-                logging.info('Hero is goign to call.')
-                call(self._driver)
+                logging.info('Hero is going to call.')
+                check_or_call(self._driver)
             return
 
         if 'hero checks' in completion:
@@ -243,7 +243,7 @@ class PokerGame:
 
         if 'hero calls' in completion:
             logging.info('Hero is going to call.')
-            call(self._driver)
+            check_or_call(self._driver)
             return
 
     def _preflop(self):
