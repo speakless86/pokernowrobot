@@ -180,6 +180,7 @@ class PokerGame:
             if self._prompt.startswith('Playing no limit poker'):
                 print(self._prompt)
                 openai_response = get_completion_response(self._prompt)
+                print(openai_response)
                 self._execute_action(openai_response.strip().split('\n')[0])
             self._has_acted = True
         finally:
@@ -221,7 +222,7 @@ class PokerGame:
             result = re.search('hero raises to (\d+.\d+)bb', completion)
 
         if result:
-            bet_size = max(float(result.group(1)), 2) * self._big_blind * 1.5
+            bet_size = max(float(result.group(1)), 2) * self._big_blind
             player_index = self._player_seats.index(self.hero_id)
             bet_size = min(bet_size, self._player_stacks[player_index])
 
